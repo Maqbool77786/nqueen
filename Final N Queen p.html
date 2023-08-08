@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>n-queen Problem</title>
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .header {
+            width: 100%;
+            background-color: rgb(189, 153, 223);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .user-input {
+            padding: 3px;
+            margin: 10px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 3px;
+            font-size: 20px;
+            padding: 10px 20px;
+        }
+
+        .user-input:focus {
+            outline: 2px solid blueviolet;
+        }
+
+        .btn {
+            cursor: pointer;
+            border: none;
+            color: white;
+            background-color: blueviolet;
+            margin: 10px;
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 3px;
+        }
+
+        .no-sol {
+            font-size: 30px;
+            text-transform: capitalize;
+            color: darkslategrey;
+            text-align: center;
+            margin: 100px 0;
+        }
+
+        .sol {
+            font-size: 30px;
+            text-transform: capitalize;
+            color: darkslategrey;
+            text-align: center;
+            margin: 50px 0 10px 0;
+        }
+
+        .chess {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .solution {
+            display: flex;
+            flex-direction: column;
+            margin: 20px;
+            border: 2px solid black;
+        }
+
+        .row {
+            display: flex;
+            flex: row;
+        }
+
+        .col {
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+        }
+
+        .col img{
+            width: 100%;
+        }
+
+        .row .col:nth-of-type(even) {
+            background-color: rgb(235, 235, 235);
+        }
+
+        .row .col:nth-of-type(odd) {
+            background-color: rgb(0, 0, 0);
+        }
+
+        .row:nth-of-type(even) .col:nth-of-type(even) {
+            background-color: rgb(0, 0, 0);
+        }
+
+        .row:nth-of-type(even) .col:nth-of-type(odd) {
+            background-color: rgb(255, 255, 255);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <input class="user-input" placeholder="Enter No. Of Queens" type="number">
+        <button class="btn">Generate Solution</button>
+    </div>
+    <div class="result">
+        <div class="answer">
+        </div>
+        <div class="chess">
+
+        </div>
+    </div>
+</body>
+<script>
+
+    //DOM ELEMENTS
+    const inp = document.querySelector('.user-input');
+    const btn = document.querySelector('.btn');
+    const ans = document.querySelector('.answer');
+    const chs = document.querySelector('.chess');
+
+
+    //N-Queen PART
+    var solveNQueens = function (n) {
+        var res = [];
+        if (n === 1 || n >= 4) backtrack(res, [], n, 0);
+        return res;
+    };
+
+    var backtrack = function (res, points, n, index) {
+        for (var i = index; i < n; i++) {
+            if (points.length !== i) return;
+            for (var j = 0; j < n; j++) {
+                if (isValid(points, [i, j])) {
+                    points.push([i, j]);
+                    backtrack(res, points, n, i + 1);
+                    if (points.length === n) res.push(buildRes(points));
+                    points.pop();
+                }
+            }
+        }
+    };
+
+    var buildRes = function (points) {
+        var res = [];
+        var n = points.length;
+        for (var i = 0; i < n; i++) {
+            res[i] = '';
+            for (var j = 0; j < n; j++) {
+                res[i] += (points[i][1] === j ? 'Q' : '.');
+            }
+        }
+        return res;
+    };
+
+    var isValid = function (oldPoints, newPoint) {
+        var len = oldPoints.length;
+        for (var i = 0; i < len; i++) {
+            if (oldPoints[i][0] === newPoint[0] || oldPoints[i][1] === newPoint[1]) return false;
+            if (Math.abs((oldPoints[i][0] - newPoint[0]) / (oldPoints[i][1] - newPoint[1])) === 1) return false;
+        }
+        return true;
+    };
+
+
+
+
+
+    //RENDERING PART
+    var renderCol = function (res) {
+        const sol = document.querySelectorAll(`.solution`);
+
+        for (let i = 0; i < sol.length; i++) {
+            for (let j = 0; j < res[0].length; j++) {
+                for (let k = 0; k < res[0].length; k++) {
+                    const colMarkup = `<div class='col col${k}'></div>`
+                    sol[i].childNodes[j].insertAdjacentHTML('beforeend', colMarkup)
+                    if (res[i][j].charAt(k) === 'Q') {
+                        sol[i].childNodes[j].childNodes[k].innerHTML = '<img src="./queen.png">' || 'Q';
+                    }
+
+                }
+            }
+        }
+    }
+
+    var renderRow = function (res) {
+        const sol = document.querySelectorAll(`.solution`);
+        for (let i = 0; i < sol.length; i++) {
+            for (let j = 0; j < res[0].length; j++) {
+                const rowMarkup = `<div class='row row${j}'></div>`;
+                sol[i].insertAdjacentHTML('beforeend', rowMarkup)
+            }
+
+        }
+
+    }
+
+    var renderSolution = function (res, solNum) {
+        const solMarkup = `<div class="solution solution${solNum + 1}"></div>`;
+        chs.insertAdjacentHTML('beforeend', solMarkup);
+    }
+
+    var renderChess = function (res) {
+        for (let i = 0; i < res.length; i++) {
+            renderSolution(res, i)
+        }
+
+        renderRow(res)
+        renderCol(res)
+
+    }
+
+
+
+    //EVENT CALL
+    btn.addEventListener('click', () => {
+        //taking input from user
+        const nQueen = parseInt(inp.value);
+        //clearing input field
+        inp.value = '';
+        //finding solutions
+        const arrResult = solveNQueens(nQueen)
+
+        if (arrResult.length === 0) {
+            ans.insertAdjacentHTML('beforeend', `<p class='no-sol'>Oops 😐 ! There Is No Any Possible Solution.</p>`);
+        } else {
+            ans.insertAdjacentHTML('beforeend', `<p class='sol'>Number of Solution 😊 : ${arrResult.length}</p>`);
+            renderChess(arrResult)
+        }
+
+    })
+</script>
+
+</html>
